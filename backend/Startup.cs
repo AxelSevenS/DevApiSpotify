@@ -32,6 +32,14 @@ public class Startup(IConfiguration Configuration)
 		services.AddSingleton(spotifyOptions);
 
 
+		services.AddDbContext<AppDbContext>(
+			opt => 
+			{
+				opt.UseNpgsql( Configuration.GetConnectionString("DefaultConnection") );
+			}
+		);
+
+
         services.AddControllers();
 
 		services.AddEndpointsApiExplorer();
@@ -65,14 +73,6 @@ public class Startup(IConfiguration Configuration)
 			string xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 			options.IncludeXmlComments( Path.Combine(AppContext.BaseDirectory, xmlFilename) );
 		});
-
-
-		services.AddDbContext<AppDbContext>(
-			opt => 
-			{
-				opt.UseNpgsql( Configuration.GetConnectionString("DefaultConnection") );
-			}
-		);
 
 		services.AddAuthentication(options =>
 		{
@@ -119,7 +119,7 @@ public class Startup(IConfiguration Configuration)
     {
 		app.UseSwagger(options =>
 		{
-			options.RouteTemplate = "api-docs/{documentname}/swagger.json";
+			options.RouteTemplate = "api-docs/{documentName}/swagger.json";
 		});
 		app.UseSwaggerUI(options =>
 		{

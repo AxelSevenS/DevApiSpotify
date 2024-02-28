@@ -23,6 +23,8 @@ public record Group
 	[JsonIgnore]
 	public IList<User> Members { get; set; } = [];
 
+	
+
 	public PublicGroupInfo GetPublicGroupInfo() => new(this);
 }
 

@@ -43,7 +43,7 @@ public record User
 	/// Secondary Key of the Group the User belongs to
 	/// </summary>
 	[Column("group_name")]
-	[JsonPropertyName("groupName")]
+	[JsonPropertyName("group_name")]
 	public string? GroupName { get; set; } = null;
 
 	/// <summary>
@@ -54,52 +54,42 @@ public record User
 	public Group? Group { get; set; } = null;
 
 	/// <summary>
-	/// Id of the Spotify User the User is linked to or Null if the User hasn't linked their Spotify Account
+	/// The expiration time of the Spotify Access token
 	/// </summary>
-	[Column("spotify_user_id")]
+	[Column("spotify_access_token_expiration")]
 	[JsonIgnore]
-	public string? SpotifyUserCode { get; set; } = null;
+	public long? SpotifyAccessTokenExpiration { get; set; } = null;
+
+	/// <summary>
+	/// Access token for the Spotify User the User is linked to or Null if the User hasn't linked their Spotify Account
+	/// </summary>
+	[Column("spotify_access_token")]
+	[JsonIgnore]
+	public string? SpotifyAccessToken { get; set; } = null;
+
+	/// <summary>
+	/// Refresh token of the Spotify User the User is linked to or Null if the User hasn't linked their Spotify Account
+	/// </summary>
+	[Column("spotify_refresh_token")]
+	[JsonIgnore]
+	public string? SpotifyRefreshToken { get; set; } = null;
 
 
-
-	public async Task<SpotifyUserInfo?> GetSpotifyUserInfo()
+	public record Personality
 	{
-		if (SpotifyUserCode is null)
-		{
-			return null;
-		}
-		// using HttpClient http = new();
+		// 0.0 - 1.0
+		[Column("likes_dance")]
+		public float LikesDance { get; set; } = 0;
 
-		// NameValueCollection query = HttpUtility.ParseQueryString("https://accounts.spotify.com/authorize");
-		// UriBuilder requestUri = new(query.ToString() ?? "");
+		[Column("tempo")]
+		public float Tempo { get; set; } = 0;
 
-		// HttpResponseMessage qdqs = await http.GetAsync(
-		// 	requestUri.ToString()
-		// );
+		[Column("prefer_instrumental_over_vocal")]
+		public bool PreferInstrumentalOverVocal { get; set; } = false;
 
-		return new SpotifyUserInfo{
-			CurrentSong = new SpotifySong{
-				AlbumName = "AlbumName",
-				ArtistName = "ArtistName",
-				Name = "SongName",
-			},
-			DeviceName = "DeviceName",
-			Username = "Username",
-		};
-	}
-
-	public async Task<GroupMemberInfo> GetGroupMemberInfo(Group group)
-	{
-		if ( ! group.Members.Contains(this) || Group != group )
-		{
-			throw new ArgumentException("User does not belong to Group");
-		}
-
-		return new GroupMemberInfo{
-			Username = Username,
-			IsGroupLeader = group.Leader == this,
-			SpotifyUser = await GetSpotifyUserInfo(),
-		};
+		// 0.0 - 1.0
+		[Column("valence")]
+		public float Valence { get; set; } = 0;
 	}
 }
 
@@ -109,10 +99,22 @@ public record SpotifyUserInfo
 	public string Username { get; set; } = string.Empty;
 
 	[JsonPropertyName("currentlyListeningTo")]
-	public SpotifySong CurrentSong { get; set; }
+	public TrackSummary CurrentSong { get; set; }
 
 	[JsonPropertyName("deviceName")]
 	public string DeviceName { get; set; } = string.Empty;
+
+
+	public SpotifyUserInfo() {}
+	public SpotifyUserInfo(PlaybackState? playbackState, UserProfile userProfile)
+	{
+		if (playbackState is not null)
+		{
+			CurrentSong = new TrackSummary(playbackState.Track);
+			DeviceName = playbackState.Device.Name;
+		}
+		Username = userProfile.DisplayName;
+	}
 }
 
 public record GroupMemberInfo
@@ -120,17 +122,17 @@ public record GroupMemberInfo
 	[JsonPropertyName("username")]
 	public string Username { get; set; } = string.Empty;
 
-	[JsonPropertyName("isGroupLeader")]
+	[JsonPropertyName("is_group_leader")]
 	public bool IsGroupLeader { get; set; } = false;
 
-	[JsonPropertyName("spotifyUser")]
+	[JsonPropertyName("spotify_user")]
 	public SpotifyUserInfo? SpotifyUser { get; set; } = null;
 }
 
 /// <summary>
 /// Model representing a Spotify Song
 /// </summary>
-public record SpotifySong
+public record TrackSummary
 {
 	/// <summary>
 	/// The Name of the Song
@@ -149,4 +151,12 @@ public record SpotifySong
 	/// </summary>
 	[JsonPropertyName("albumName")]
 	public string AlbumName { get; set; } = string.Empty;
+
+
+	public TrackSummary(Track track)
+	{
+		AlbumName = track.Album.Name;
+		ArtistName = string.Join(", ", track.Artists.Select(a => a.Name));
+		Name = track.Name;
+	}
 }

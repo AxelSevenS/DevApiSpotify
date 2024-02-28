@@ -32,7 +32,9 @@ namespace ProjectMana.Migrations
                     username = table.Column<string>(type: "text", nullable: false),
                     password = table.Column<string>(type: "text", nullable: false),
                     group_name = table.Column<string>(type: "text", nullable: true),
-                    spotify_user_id = table.Column<string>(type: "text", nullable: true)
+                    spotify_access_token_expiration = table.Column<long>(type: "bigint", nullable: true),
+                    spotify_access_token = table.Column<string>(type: "text", nullable: true),
+                    spotify_refresh_token = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
