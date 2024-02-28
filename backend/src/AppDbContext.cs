@@ -69,8 +69,6 @@ public class AppDbContext(DbContextOptions options, SpotifyOptions spotifyOption
 		);
 
 
-		Console.WriteLine(response.StatusCode);
-		Console.WriteLine(await response.Content.ReadAsStringAsync());
 		if ( ! response.IsSuccessStatusCode )
 		{
 			return null;
