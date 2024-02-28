@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace ProjectMana;
+namespace YSpotify;
 
 public class Program
 {

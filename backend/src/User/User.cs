@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 using System.Web;
 using Microsoft.EntityFrameworkCore;
 
-namespace ProjectMana;
+namespace YSpotify;
 
 /// <summary>
 /// Model of a User of the Service, identified by unsigned integer Id,

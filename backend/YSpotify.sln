@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectMana", "ProjectMana.csproj", "{12778B22-EB73-471E-9DBE-8C7215BA3B83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YSpotify", "YSpotify.csproj", "{12778B22-EB73-471E-9DBE-8C7215BA3B83}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

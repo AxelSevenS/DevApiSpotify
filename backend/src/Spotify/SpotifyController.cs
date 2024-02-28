@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace ProjectMana;
+namespace YSpotify;
 
 [ApiController]
 [Route("api/spotify")]

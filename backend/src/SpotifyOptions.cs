@@ -1,5 +1,5 @@
 
-namespace ProjectMana;
+namespace YSpotify;
 
 public record class SpotifyOptions
 {

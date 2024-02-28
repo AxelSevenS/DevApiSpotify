@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using ProjectMana;
+using YSpotify;
 
 #nullable disable
 
-namespace ProjectMana.Migrations
+namespace YSpotify.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20240227125509_SeedDomain")]

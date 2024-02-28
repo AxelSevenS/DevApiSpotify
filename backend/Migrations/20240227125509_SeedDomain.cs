@@ -3,7 +3,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace ProjectMana.Migrations
+namespace YSpotify.Migrations
 {
     /// <inheritdoc />
     public partial class SeedDomain : Migration

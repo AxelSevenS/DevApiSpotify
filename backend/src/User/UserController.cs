@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 
-namespace ProjectMana;
+namespace YSpotify;
 
 [ApiController]
 [Route("api/users")]

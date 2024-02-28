@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 
 
-namespace ProjectMana;
+namespace YSpotify;
 
 [ApiController]
 [Route("api/groups")]

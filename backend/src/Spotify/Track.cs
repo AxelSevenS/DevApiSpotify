@@ -1,7 +1,7 @@
 
 using System.Text.Json.Serialization;
 
-namespace ProjectMana;
+namespace YSpotify;
 
 /// <summary>
 /// Model of a track belonged to a user in the database 

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 // using UserAuth = ProjectMana.User.Authorizations;
 
-namespace ProjectMana;
+namespace YSpotify;
 
 public static class ControllerExtensions
 {

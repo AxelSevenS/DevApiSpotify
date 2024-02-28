@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace ProjectMana;
+namespace YSpotify;
 
 public record CreatePlaylistResponse
 {

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
-namespace ProjectMana;
+namespace YSpotify;
 
 [Table("groups")]
 public record Group
