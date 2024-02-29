@@ -99,12 +99,11 @@ public class GroupController(AppDbContext repository) : Controller
 			};
 
 			await repository.Groups.AddAsync(group);
-			await repository.SaveChangesAsync();
 		}
 
 		user.Group = group;
-		group.Members.Add(user);
-
+		// group.Members.Add(user); Only do one of these at a time
+		 
 		await repository.SaveChangesAsync();
 		return Ok( group.GetPublicGroupInfo() );
 	}

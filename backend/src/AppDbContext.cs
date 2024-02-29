@@ -20,12 +20,24 @@ public class AppDbContext(DbContextOptions options, SpotifyOptions spotifyOption
 			{
 				Id = 1,
 				Username = "TestUser",
+				GroupName = "TestGroup",
 				Password = "Dk8ZVuZjmsgVtJDfLv74gA3Rc4+D63N4lGH6JvauMvA=",
+				SpotifyAccessToken = "BQAb7XgAXhct_76b67aYGEd87CrbmwWht_nrM2by_sWBbbuMwgPU0AMbd_GEnHhEa4dpPwAraQ74FrVVUi0EJs7JCk8ZKkkkuBPzQXO87NlL1JuuCEanSwCYxPWxoWvUE_JTAq_2C7qdF_ZgIos1j24C1q9oxk6_Y95qpFs_-V6Dj697vPQRnIhnXOpxwZw1guzi5zNOXybeBYTpKkKfRZaSjJiiwjzN4WlAq1G_uIG2EU0e7kPKhjMPoPDM1PR2MYAzC_Ll1Q6UNWU_oGWl7w",
+				SpotifyRefreshToken = "AQC40pbscT1uJqiPWb-PVw8xy9QkDt0bEz0K8VGmUCKXWf7ySZgQw_fWom4e8-npHXYA_UKjBr2A39mmQXtAt4YRUFQ1rGFXrFhAlBqIpuYKhyeAc5NEQcXjMOfk-jkJORw",
+				SpotifyAccessTokenExpiration = 1709195411,
+			});
+			
+		modelBuilder.Entity<Group>()
+			.HasData(new Group
+			{
+				Name = "TestGroup",
+				LeaderId = 1,
 			});
 
-		modelBuilder.Entity<Group>()
-			.HasOne(group => group.Leader)
-			.WithOne();
+		// modelBuilder.Entity<Group>()
+		// 	.HasOne(group => group.Leader)
+		// 	.WithOne()
+		// 	.HasForeignKey(g => g.Lead);
 
         modelBuilder.Entity<Group>()
             .HasMany(g => g.Members)

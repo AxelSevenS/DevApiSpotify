@@ -17,7 +17,8 @@ Les fichiers de Configuration OpenAPI se trouvent à l'emplacement [ici](./backe
 
 ### Tests ( non-unitaires *D:* )
 L'API est populée par Migration de base de Donnée.
-Un utilisateur existe par défaut, avec les identifiants ``TestUser`` et ``TestPassword``.
+Un utilisateur relié au compte Spotify de Axel, "AxelSeven" existe par défaut, avec les identifiants ``TestUser`` et ``TestPassword``.
+Il appartient au groupe ``TestGroup`` et en est le Chef.
 
 Pour se Connecter/S'inscrire au service, il faut utiliser les endpoints [/api/users/login](http://localhost:5000/api/users/login) et [/api/users/register](http://localhost:5000/api/users/register) respectivement.
 
