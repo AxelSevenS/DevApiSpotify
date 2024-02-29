@@ -14,8 +14,17 @@ public class SpotifyController(AppDbContext repository, SpotifyOptions spotifyOp
 	private string RedirectUri => $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/spotify/login/callback";
 
 
+	/// <summary>
+	/// Link your Client Account to Spotify.
+	/// </summary>
+	/// <response code="200">Returns a URL that is Used to authorize the Client to access your Spotify Account</response>
+	/// <response code="400">If the Request failed</response>
+	/// <response code="401">If the User is not Authenticated</response>
 	[HttpGet("login")]
 	[Authorize]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	public async Task<ActionResult> Login()
 	{
 		if ( ! this.TryGetAuthenticatedUser(repository, out User user) )
@@ -50,9 +59,21 @@ public class SpotifyController(AppDbContext repository, SpotifyOptions spotifyOp
 		return Ok(response.RequestMessage.RequestUri);
 	}
 
-
+	/// <summary>
+	/// Callback for Logging linking your Spotify Account to the Client.
+	/// </summary>
+	/// <param name="code">The code used to request Tokens to Spotify</param>
+	/// <param name="state">The state of the Request</param>
+	/// <response code="202">The Account was Linked to Spotify</response>
+	/// <response code="400">If the Request failed</response>
+	/// <response code="401">If the User is not Authenticated</response>
+	/// <response code="404">If there was no User that matched the state</response>
 	[HttpGet("login/callback")]
-	public async Task<ActionResult<string>> LoginCallback([FromQuery] string code, [FromQuery] string state)
+	[ProducesResponseType(StatusCodes.Status202Accepted)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult> LoginCallback([FromQuery] string code, [FromQuery] string state)
 	{
 		string[] split = state.Split('.');
 		uint userId;
@@ -114,11 +135,26 @@ public class SpotifyController(AppDbContext repository, SpotifyOptions spotifyOp
 		user.SpotifyRefreshToken = tokenResult.RefreshToken;
 
 		await repository.SaveChangesAsync();
-		return Ok();
+		return Accepted($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api-docs/");
 	}
 
+	/// <summary>
+	/// Create a Spotify Playlist on your Spotify Account containing the Top Tracks of the User with the given Client ID
+	/// </summary>
+	/// <param name="userId">The Client ID of the User to create a Top Tracks Playlist</param>
+	/// <response code="202">The Playlist was successfully Requested for Creation</response>
+	/// <response code="204">If the requested User has no Top Tracks to create a Playlist with</response>
+	/// <response code="401">If the User is not Authenticated</response>
+	/// <response code="403">If either of the Users are not Linked to Spotify</response>
+	/// <response code="404">If a Resource was not found</response>
 	[HttpPost("topTracksPlaylist")]
 	[Authorize]
+	[ProducesResponseType(StatusCodes.Status202Accepted)]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	public async Task<ActionResult<string>> CreateTopTracksPlaylist([FromForm] uint userId)
 	{
 		if ( ! this.TryGetAuthenticatedUser(repository, out User user) )
@@ -129,7 +165,7 @@ public class SpotifyController(AppDbContext repository, SpotifyOptions spotifyOp
 		string? userAccessToken = await repository.GetAccessToken(user);
 		if ( userAccessToken is null )
 		{
-			return NotFound("Your account is not linked to Spotify.");
+			return Forbid("Your account is not linked to Spotify.");
 		}
 
 		User? targetUser = await repository.Users.FindAsync(userId);
@@ -141,7 +177,7 @@ public class SpotifyController(AppDbContext repository, SpotifyOptions spotifyOp
 		string? targetUserAccessToken = await repository.GetAccessToken(targetUser);
 		if ( targetUserAccessToken is null )
 		{
-			return NotFound($"The given User's Account is not linked to Spotify.");
+			return Forbid($"The given User's Account is not linked to Spotify.");
 		}
 
 	
@@ -160,7 +196,7 @@ public class SpotifyController(AppDbContext repository, SpotifyOptions spotifyOp
 		UserProfile? userProfile = JsonSerializer.Deserialize<UserProfile>(await profileResponse.Content.ReadAsStringAsync());
 		if (userProfile is null)
 		{
-			return NotFound("Your Profile could not be processed.");
+			return BadRequest("Your Profile could not be processed.");
 		}
 		
 		HttpResponseMessage topTracksResponse = await http.GetAsync(
@@ -183,7 +219,7 @@ public class SpotifyController(AppDbContext repository, SpotifyOptions spotifyOp
 		TopTracksResponse? topTracks = JsonSerializer.Deserialize<TopTracksResponse>(await topTracksResponse.Content.ReadAsStringAsync());
 		if ( topTracks is null )
 		{
-			return NotFound("The given Users's Top Tracks could not be processed.");
+			return BadRequest("The given Users's Top Tracks could not be processed.");
 		}
 
 		if ( topTracks.Total == 0 )
@@ -213,7 +249,7 @@ public class SpotifyController(AppDbContext repository, SpotifyOptions spotifyOp
 		CreatePlaylistResponse? createdPlaylist = JsonSerializer.Deserialize<CreatePlaylistResponse>(await createPlaylistResponse.Content.ReadAsStringAsync());
 		if ( createdPlaylist is null )
 		{
-			return NotFound("The playlist could not be processed.");
+			return BadRequest("The playlist could not be processed.");
 		}
 
 		HttpResponseMessage addTracksResponse = await http.PostAsync(
@@ -227,10 +263,10 @@ public class SpotifyController(AppDbContext repository, SpotifyOptions spotifyOp
 
 		if ( ! addTracksResponse.IsSuccessStatusCode || addTracksResponse.RequestMessage is null )
 		{
-			return NotFound("The playlist could not be populated.");
+			return BadRequest("The playlist could not be populated.");
 		}
 
 
-		return AcceptedAtRoute(createdPlaylist.Href);
+		return Accepted(createdPlaylist.Href);
 	}
 }

@@ -3,7 +3,6 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
 
 namespace YSpotify;
@@ -18,12 +17,12 @@ public class GroupController(AppDbContext repository) : Controller
 	/// <description>
 	/// All groups name in the database
 	/// </description>
-	/// <responses>
-	/// "200": 
-	/// Ok
-	/// </responses>
+	/// <response code="200">Returns the public Info of the Group</response>
+	/// <response code="204">If there are no Groups</response>
 	[HttpGet]
 	[Authorize]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
 	public async Task<ActionResult<List<PublicGroupInfo>>> GetAll() =>
 		await repository.Groups
 			.Include(g => g.Members)
@@ -35,16 +34,16 @@ public class GroupController(AppDbContext repository) : Controller
 			};
 
 	/// <summary>
-	/// Get the group where the user is in
+	/// Get the group the authenticated User belongs to.
 	/// </summary>
-	/// <description> 
-	/// If the user is not in a group, return nothing 
-	/// </description>
-	/// <returns>
-	/// 
-	/// </returns>
+	/// <response code="200">Returns the Group Members List</response>
+	/// <response code="401">If the User is not Authenticated</response>
+	/// <response code="403">If the User is not in a Group</response>
 	[HttpGet("current")]
 	[Authorize]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	public async Task<ActionResult<List<GroupMemberInfo>>> GetGroupMembers()
 	{
 		if ( ! this.TryGetAuthenticatedUser(repository, out User user) )
@@ -68,10 +67,13 @@ public class GroupController(AppDbContext repository) : Controller
 	/// <summary>
 	/// Join a group by the group name
 	/// </summary>
-	/// <param name="groupName"></param>
-	/// <returns> GetPublicGroupInfo (name, id, etc..)</returns>
+	/// <param name="groupName">The Identifying name of the Group</param>
+	/// <response code="200">Returns public Info of the Group the User joined</response>
+	/// <response code="401">If the User is not Authenticated</response>
 	[HttpPost("join/{groupName}")]
 	[Authorize]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	public async Task<ActionResult<PublicGroupInfo>> JoinGroup(string groupName)
 	{
 		if ( ! this.TryGetAuthenticatedUser(repository, out User user) )
@@ -97,6 +99,7 @@ public class GroupController(AppDbContext repository) : Controller
 			};
 
 			await repository.Groups.AddAsync(group);
+			await repository.SaveChangesAsync();
 		}
 
 		user.Group = group;
@@ -109,11 +112,14 @@ public class GroupController(AppDbContext repository) : Controller
 	/// <summary>
 	/// Leave a group
 	/// </summary>
-	/// <returns>
-	/// The group the user left
-	/// </returns>
+	/// <response code="200">Returns public Info of the Group the User left</response>
+	/// <response code="401">If the User is not Authenticated</response>
+	/// <response code="403">If the User is not in a Group</response>
 	[HttpPost("leave")]
 	[Authorize]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status403Forbidden)]
 	public async Task<ActionResult<PublicGroupInfo>> LeaveGroup()
 	{
 		if ( ! this.TryGetAuthenticatedUser(repository, out User user) )
@@ -122,7 +128,7 @@ public class GroupController(AppDbContext repository) : Controller
 		}
 
 		if ( user.Group is null ) {
-			return NotFound();
+			return Forbid();
 		}
 
 		PublicGroupInfo group = user.Group.GetPublicGroupInfo();
@@ -133,8 +139,20 @@ public class GroupController(AppDbContext repository) : Controller
 		return Ok( group );
 	}
 	
+	/// <summary>
+	/// As the Group Leader, Synchronize all the Group's Members' Players to the current
+	/// Playback state of the Group Leader.
+	/// </summary>
+	/// <response code="200">Returns public Info of the Group the User left</response>
+	/// <response code="401">If the User is not Authenticated</response>
+	/// <response code="403">If the User is not the Group Leader</response>
+	/// <response code="404">If A resource necessary to Synchronize could not be found</response>
 	[HttpPost("synchronize")]
 	[Authorize]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	public async Task<ActionResult<PublicGroupInfo>> SynchronizePlayer()
 	{
 		if ( ! this.TryGetAuthenticatedUser(repository, out User user) )

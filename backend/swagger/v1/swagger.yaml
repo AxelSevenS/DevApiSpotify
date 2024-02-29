@@ -1,0 +1,716 @@
+openapi: 3.0.1
+info:
+  title: YSpotify
+  version: '1.0'
+paths:
+  /api/groups:
+    get:
+      tags:
+        - Group
+      summary: Get all groups
+      responses:
+        '200':
+          description: Returns the public Info of the Group
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicGroupInfo'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicGroupInfo'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicGroupInfo'
+        '204':
+          description: If there are no Groups
+  /api/groups/current:
+    get:
+      tags:
+        - Group
+      summary: Get the group the authenticated User belongs to.
+      responses:
+        '200':
+          description: Returns the Group Members List
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupMemberInfo'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupMemberInfo'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupMemberInfo'
+        '401':
+          description: If the User is not Authenticated
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '403':
+          description: If the User is not in a Group
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  '/api/groups/join/{groupName}':
+    post:
+      tags:
+        - Group
+      summary: Join a group by the group name
+      parameters:
+        - name: groupName
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Returns public Info of the Group the User joined
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/PublicGroupInfo'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicGroupInfo'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/PublicGroupInfo'
+        '401':
+          description: If the User is not Authenticated
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/groups/leave:
+    post:
+      tags:
+        - Group
+      summary: Leave a group
+      responses:
+        '200':
+          description: Returns public Info of the Group the User left
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/PublicGroupInfo'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicGroupInfo'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/PublicGroupInfo'
+        '401':
+          description: If the User is not Authenticated
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '403':
+          description: If the User is not in a Group
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/groups/synchronize:
+    post:
+      tags:
+        - Group
+      summary: "As the Group Leader, Synchronize all the Group's Members' Players to the current\r\nPlayback state of the Group Leader."
+      responses:
+        '200':
+          description: Returns public Info of the Group the User left
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/PublicGroupInfo'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicGroupInfo'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/PublicGroupInfo'
+        '401':
+          description: If the User is not Authenticated
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '403':
+          description: If the User is not the Group Leader
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: If A resource necessary to Synchronize could not be found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/spotify/login:
+    get:
+      tags:
+        - Spotify
+      summary: Link your Client Account to Spotify.
+      responses:
+        '200':
+          description: Returns a URL that is Used to authorize the Client to access your Spotify Account
+        '400':
+          description: If the Request failed
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '401':
+          description: If the User is not Authenticated
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/spotify/login/callback:
+    get:
+      tags:
+        - Spotify
+      summary: Callback for Logging linking your Spotify Account to the Client.
+      parameters:
+        - name: code
+          in: query
+          description: The code used to request Tokens to Spotify
+          schema:
+            type: string
+        - name: state
+          in: query
+          description: The state of the Request
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The Account was Linked to Spotify
+        '400':
+          description: If the Request failed
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '401':
+          description: If the User is not Authenticated
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: If there was no User that matched the state
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/spotify/topTracksPlaylist:
+    post:
+      tags:
+        - Spotify
+      summary: Create a Spotify Playlist on your Spotify Account containing the Top Tracks of the User with the given Client ID
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  format: int32
+            encoding:
+              userId:
+                style: form
+      responses:
+        '202':
+          description: The Playlist was successfully Requested for Creation
+        '204':
+          description: If the requested User has no Top Tracks to create a Playlist with
+        '400':
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '401':
+          description: If the User is not Authenticated
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '403':
+          description: If either of the Users are not Linked to Spotify
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: If a Resource was not found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/users:
+    get:
+      tags:
+        - User
+      summary: Get all users
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  '/api/users/{id}':
+    get:
+      tags:
+        - User
+      summary: Get a user by id
+      parameters:
+        - name: id
+          in: path
+          description: The id of the user
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    delete:
+      tags:
+        - User
+      summary: Delete a user
+      parameters:
+        - name: id
+          in: path
+          description: The id of the user
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Returns the Deleted User
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: If the User is not authorized to delete the Account (if the User is another one)
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '404':
+          description: If the User could not be found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/users/login:
+    post:
+      tags:
+        - User
+      summary: Authenticate as a user
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+            encoding:
+              username:
+                style: form
+              password:
+                style: form
+      responses:
+        '200':
+          description: Returns the JWT for authentication with this Account
+          content:
+            text/plain:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+            text/json:
+              schema:
+                type: string
+        '404':
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '400':
+          description: If the User could not be identified with the given Credentials
+  /api/users/register:
+    put:
+      tags:
+        - User
+      summary: Register a user with a Given Password and unique Username
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+            encoding:
+              username:
+                style: form
+              password:
+                style: form
+      responses:
+        '201':
+          description: The User was Created
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: If the Username is already taken or the Registration otherwise failed
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  '/api/users/{id}/personality':
+    get:
+      tags:
+        - User
+      summary: Get a user's "personality" by id
+      parameters:
+        - name: id
+          in: path
+          description: The id of the user
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: The User was Created
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/Personality'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Personality'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/Personality'
+        '400':
+          description: If the Username is already taken or the Registration otherwise failed
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+components:
+  schemas:
+    GroupMemberInfo:
+      type: object
+      properties:
+        username:
+          type: string
+          nullable: true
+        is_group_leader:
+          type: boolean
+        spotify_user:
+          $ref: '#/components/schemas/SpotifyUserInfo'
+      additionalProperties: false
+    Personality:
+      type: object
+      properties:
+        likesDance:
+          type: number
+          format: float
+        tempo:
+          type: number
+          format: float
+        preferInstrumentalOverVocal:
+          type: boolean
+        valence:
+          type: number
+          format: float
+      additionalProperties: false
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+          nullable: true
+        detail:
+          type: string
+          nullable: true
+        instance:
+          type: string
+          nullable: true
+      additionalProperties: { }
+    PublicGroupInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        user_count:
+          type: integer
+          format: int32
+      additionalProperties: false
+    SpotifyUserInfo:
+      type: object
+      properties:
+        username:
+          type: string
+          nullable: true
+        currentlyListeningTo:
+          $ref: '#/components/schemas/TrackSummary'
+        deviceName:
+          type: string
+          nullable: true
+      additionalProperties: false
+    TrackSummary:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The Name of the Song
+          nullable: true
+        artistName:
+          type: string
+          description: The Name of the Artist
+          nullable: true
+        albumName:
+          type: string
+          description: The Name of the Album the Song belongs to
+          nullable: true
+      additionalProperties: false
+      description: Model representing a Spotify Song
+    User:
+      required:
+        - password
+        - username
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identication of the User
+          format: int32
+        username:
+          minLength: 1
+          type: string
+          description: Unique Username of the User
+        password:
+          minLength: 1
+          type: string
+          description: Hashed Password of the User
+        group_name:
+          type: string
+          description: Secondary Key of the Group the User belongs to
+          nullable: true
+      additionalProperties: false
+      description: "Model of a User of the Service, identified by unsigned integer Id,\r\nContains login credentials as well as a reference to the Group the user belongs to.\r\nThe Model contains the spotify user Id, if the User is linked to a Spotify User."
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: Bearer
+      bearerFormat: JWT
+security:
+  - Bearer: [ ]

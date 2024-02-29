@@ -20,39 +20,135 @@ public class UserController(AppDbContext repository, JwtOptions jwtOptions) : Co
 	/// <summary>
 	/// Get all users
 	/// </summary>
-	/// <returns>
-	/// All users
-	/// </returns>
+	/// <response code="200">Returns all Users</response>
+	/// <response code="204">If there are no Users</response>
 	[HttpGet]
 	[Authorize]
-	public async Task<List<User>> GetAll() =>
-		await repository.Users.ToListAsync();
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
+	public async Task<ActionResult<IEnumerable<User>>> GetAll() =>
+		await repository.Users
+			.ToListAsync() switch
+		{
+			[] => NoContent(),
+			[.. IEnumerable<User> many] => Ok(many)
+		};
 
 	/// <summary>
 	/// Get a user by id
 	/// </summary>
-	/// <param name="id">The id of the user</param>
-	/// <returns>
-	/// The user with the given id
-	/// </returns>
+	/// <param name="id">The Id of the user</param>
+	/// <response code="200">Returns the designated User</response>
+	/// <response code="404">If the User could not be found</response>
 	[HttpGet("{id}")]
 	[Authorize]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	public async Task<ActionResult<User>> GetById(uint id) =>
 		await repository.Users.FindAsync(id) switch
 		{
+			null => NotFound(),
 			User user => Ok(user),
+		};
+
+	/// <summary>
+	/// Delete a user
+	/// </summary>
+	/// <param name="id">The Id of the user</param>
+	/// <response code="200">Returns the Deleted User</response>
+	/// <response code="403">If the User is not authorized to delete the Account (if the User is another one)</response>
+	/// <response code="404">If the User could not be found</response>
+	[HttpDelete("{id}")]
+	[Authorize]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<User>> Delete(uint id)
+	{
+		if ( ! this.VerifyAuthenticatedId(id) )
+		{
+			return Forbid();
+		}
+
+		User? current = await repository.Users.FindAsync(id);
+		if ( current is null )
+		{
+			return NotFound();
+		}
+
+		EntityEntry<User> deleted = repository.Users.Remove(current);
+
+		repository.SaveChanges();
+		return Ok(deleted.Entity);
+	}
+	
+	/// <summary>
+	/// Authenticate as a user
+	/// </summary>
+	/// <param name="username">The Username of the user</param>
+	/// <param name="password">The Password of the user</param>
+	/// <response code="200">Returns the JWT for authentication with this Account</response>
+	/// <response code="400">If the User could not be identified with the given Credentials</response>
+	[HttpPost("login")]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<string>> Login([FromForm]string username, [FromForm]string password)
+	{
+		password = jwtOptions.HashPassword(password);
+		return await repository.Users.FirstOrDefaultAsync(u => u.Username == username && u.Password == password) switch
+		{
+			User user => Ok( JsonSerializer.Serialize(jwtOptions.GenerateFrom(user).Write()) ),
 			null => NotFound(),
 		};
+	}
+
+	/// <summary>
+	/// Register a user with a Given Password and unique Username
+	/// </summary>
+	/// <param name="username">The unique Username of the user</param>
+	/// <param name="password">The Password of the user</param>
+	/// <response code="201">The User was Created</response>
+	/// <response code="400">If the Username is already taken or the Registration otherwise failed</response>
+	[HttpPut("register")]
+	[ProducesResponseType(StatusCodes.Status201Created)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	public async Task<ActionResult<User>> Register([FromForm] string username, [FromForm] string password)
+	{
+		User? existing = await repository.Users
+			.Where(u => u.Username == username)
+			.FirstOrDefaultAsync();
+		if (existing is not null)
+		{
+			return BadRequest("Username already taken.");
+		}
+
+		EntityEntry<User>? result = repository.Users.Add(
+			new User
+			{
+				Username = username,
+				Password = jwtOptions.HashPassword(password)
+			}
+		);
+
+		if (result.Entity is not User user)
+		{
+			return BadRequest();
+		}
+
+		repository.SaveChanges();
+		return Created($"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/users/{user.Id}", user);
+	}
 
 	/// <summary>
 	/// Get a user's "personality" by id
 	/// </summary>
-	/// <param name="id">The id of the user</param>
-	/// <returns>
-	/// The Personality of the user with the given id
-	/// </returns>
+	/// <param name="id">The Id of the user</param>
+	/// <response code="200">The User was Created</response>
+	/// <response code="400">If the Username is already taken or the Registration otherwise failed</response>
 	[HttpGet("{id}/personality")]
 	[Authorize]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	public async Task<ActionResult<User.Personality>> GetPersonalityById(uint id)
 	{
 		User? user = await repository.Users.FindAsync(id);
@@ -131,90 +227,5 @@ public class UserController(AppDbContext repository, JwtOptions jwtOptions) : Co
 				PreferInstrumentalOverVocal = featuresResult.AudioFeatures.Select(f => f.Instrumentalness).Average() > featuresResult.AudioFeatures.Select(f => f.Speechiness).Average()
 			}
 		);
-	}
-	
-	/// <summary>
-	/// Authenticate a user
-	/// </summary>
-	/// <param name="username">The username of the user</param>
-	/// <param name="password">The password of the user</param>
-	/// <returns>
-	/// The JWT token of the user,
-	///    or NotFound if the user does not exist
-	/// </returns>
-	[HttpPost("login")]
-	public async Task<ActionResult> Login([FromForm]string username, [FromForm]string password)
-	{
-		password = jwtOptions.HashPassword(password);
-		return await repository.Users.FirstOrDefaultAsync(u => u.Username == username && u.Password == password) switch
-		{
-			User user => Ok( JsonSerializer.Serialize(jwtOptions.GenerateFrom(user).Write()) ),
-			null => NotFound(),
-		};
-	}
-
-	/// <summary>
-	/// Register a user
-	/// </summary>
-	/// <param name="username">The username of the user</param>
-	/// <param name="password">The password of the user</param>
-	/// <returns>
-	/// The user,
-	///    or BadRequest if the user already exists
-	/// </returns>
-	[HttpPut("register")]
-	public async Task<ActionResult<User>> Register([FromForm]string username, [FromForm]string password)
-	{
-		User? existing = await repository.Users
-			.Where(u => u.Username == username)
-			.FirstOrDefaultAsync();
-		if (existing is not null)
-		{
-			return BadRequest("Username already taken.");
-		}
-
-		EntityEntry<User>? result = repository.Users.Add(
-			new User
-			{
-				Username = username,
-				Password = jwtOptions.HashPassword(password)
-			}
-		);
-
-		if (result.Entity is not User user)
-		{
-			return BadRequest();
-		}
-
-		repository.SaveChanges();
-		return Ok(user);
-	}
-
-	/// <summary>
-	/// Delete a user
-	/// </summary>
-	/// <param name="id">The id of the user</param>
-	/// <returns>
-	/// The deleted user
-	/// </returns>
-	[HttpDelete("{id}")]
-	[Authorize]
-	public async Task<ActionResult<User>> Delete(uint id)
-	{
-		if ( ! this.VerifyAuthenticatedId(id) )
-		{
-			return Forbid();
-		}
-
-		User? current = await repository.Users.FindAsync(id);
-		if ( current is null )
-		{
-			return NotFound();
-		}
-
-		EntityEntry<User> deleted = repository.Users.Remove(current);
-
-		repository.SaveChanges();
-		return Ok(deleted.Entity);
 	}
 }

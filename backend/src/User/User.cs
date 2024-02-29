@@ -77,18 +77,18 @@ public record User
 
 	public record Personality
 	{
-		// 0.0 - 1.0
-		[Column("likes_dance")]
+		// 0.0 - 10.0
+		[JsonPropertyName("likes_dance")]
 		public float LikesDance { get; set; } = 0;
 
-		[Column("tempo")]
+		[JsonPropertyName("tempo")]
 		public float Tempo { get; set; } = 0;
 
-		[Column("prefer_instrumental_over_vocal")]
+		[JsonPropertyName("prefer_instrumental_over_vocal")]
 		public bool PreferInstrumentalOverVocal { get; set; } = false;
 
 		// 0.0 - 1.0
-		[Column("valence")]
+		[JsonPropertyName("valence")]
 		public float Valence { get; set; } = 0;
 	}
 }

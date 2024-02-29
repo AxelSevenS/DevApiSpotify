@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
@@ -48,7 +49,6 @@ public class Startup(IConfiguration Configuration)
 			options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
 			{
 				In = ParameterLocation.Header,
-				Description = "Please enter a valid token",
 				Name = "Authorization",
 				Type = SecuritySchemeType.Http,
 				BearerFormat = "JWT",
@@ -62,8 +62,8 @@ public class Startup(IConfiguration Configuration)
 					{
 						Reference = new OpenApiReference
 						{
-							Type=ReferenceType.SecurityScheme,
-							Id="Bearer"
+							Type = ReferenceType.SecurityScheme,
+							Id = "Bearer"
 						}
 					},
 					[]
@@ -117,13 +117,9 @@ public class Startup(IConfiguration Configuration)
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
-		app.UseSwagger(options =>
-		{
-			options.RouteTemplate = "api-docs/{documentName}/swagger.json";
-		});
 		app.UseSwaggerUI(options =>
 		{
-			options.SwaggerEndpoint("/api-docs/v1/swagger.json", "v1");
+			options.SwaggerEndpoint($"../swagger/v1/swagger.json", "v1");
 			options.RoutePrefix = "api-docs";
 		});
 
@@ -138,13 +134,13 @@ public class Startup(IConfiguration Configuration)
 		);
 
         app.UseHttpsRedirection();
-        // app.UseStaticFiles(
-        //     new StaticFileOptions
-        //     {
-        //         FileProvider = new PhysicalFileProvider( Path.Combine(Directory.GetCurrentDirectory(), "Resources") ),
-        //         RequestPath = "/Resources"
-        //     }
-        // );
+        app.UseStaticFiles(
+            new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider( Path.Combine(Directory.GetCurrentDirectory(), "swagger") ),
+                RequestPath = "/swagger"
+            }
+        );
 
 
         app.UseRouting();

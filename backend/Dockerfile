@@ -11,6 +11,10 @@ COPY *.csproj ./
 RUN dotnet restore
 
 COPY . ./
+
+# RUN dotnet new tool-manifest --force
+RUN dotnet tool install SwashBuckle.AspNetCore.Cli
+
 RUN dotnet publish -c Release -o out
 
 

@@ -2,10 +2,10 @@ version: '3'
 
 services:
   db:
-    container_name: db
+    container_name: yspotify-db
     image: postgres:12
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./db:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -19,7 +19,7 @@ services:
       retries: 20
 
   backend:
-    container_name: backend
+    container_name: yspotify-backend
     depends_on:
       db:
         condition: service_healthy
@@ -30,6 +30,3 @@ services:
       ConnectionStrings__DefaultConnection: "Server=db; Database=postgres; User Id=postgres; Password=postgres;"
     ports:
       - "5000:5000"
-
-volumes:
-  pgdata: {}
