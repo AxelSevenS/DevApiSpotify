@@ -85,7 +85,7 @@ paths:
       parameters:
         - name: groupName
           in: path
-          description: ''
+          description: The Identifying name of the Group
           required: true
           schema:
             type: string
@@ -259,7 +259,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        '202':
           description: The Account was Linked to Spotify
         '400':
           description: If the Request failed
@@ -374,7 +374,7 @@ paths:
       summary: Get all users
       responses:
         '200':
-          description: Success
+          description: Returns all Users
           content:
             text/plain:
               schema:
@@ -391,6 +391,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/User'
+        '204':
+          description: If there are no Users
   '/api/users/{id}':
     get:
       tags:
@@ -399,14 +401,14 @@ paths:
       parameters:
         - name: id
           in: path
-          description: The id of the user
+          description: The Id of the user
           required: true
           schema:
             type: integer
             format: int32
       responses:
         '200':
-          description: Success
+          description: Returns the designated User
           content:
             text/plain:
               schema:
@@ -417,6 +419,18 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/User'
+        '404':
+          description: If the User could not be found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
     delete:
       tags:
         - User
@@ -424,7 +438,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: The id of the user
+          description: The Id of the user
           required: true
           schema:
             type: integer
@@ -566,7 +580,7 @@ paths:
       parameters:
         - name: id
           in: path
-          description: The id of the user
+          description: The Id of the user
           required: true
           schema:
             type: integer
@@ -612,13 +626,13 @@ components:
     Personality:
       type: object
       properties:
-        likesDance:
+        likes_dance:
           type: number
           format: float
         tempo:
           type: number
           format: float
-        preferInstrumentalOverVocal:
+        prefer_instrumental_over_vocal:
           type: boolean
         valence:
           type: number

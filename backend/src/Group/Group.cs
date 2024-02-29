@@ -12,7 +12,7 @@ public record Group
 	[JsonPropertyName("name")]
 	public string Name { get; set; } = string.Empty;
 
-	[Required] [Column("leaderId")]
+	[Required] [Column("leader_id")]
 	[JsonIgnore]
 	public uint LeaderId { get; set; } = 1;
 
@@ -21,7 +21,7 @@ public record Group
 	public User Leader { get; set; } = null!;
 
 	[JsonIgnore]
-	public IList<User> Members { get; set; } = [];
+	public IList<User> Members { get; set; } = null!;
 
 	
 

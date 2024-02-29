@@ -14,13 +14,14 @@ public class AppDbContext(DbContextOptions options, SpotifyOptions spotifyOption
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		base.OnModelCreating(modelBuilder);
-
-		// Initialization logic here
-		// modelBuilder.Entity<Group>().HasMany(group => group.Members)
-		// 	.WithOne(user => user.Group);
-
-		// modelBuilder.Entity<User>().HasOne(user => user.Group)
-		// 	.WithMany(group => group.Members);
+		
+		modelBuilder.Entity<User>()
+			.HasData(new User
+			{
+				Id = 1,
+				Username = "TestUser",
+				Password = "Dk8ZVuZjmsgVtJDfLv74gA3Rc4+D63N4lGH6JvauMvA=",
+			});
 
 		modelBuilder.Entity<Group>()
 			.HasOne(group => group.Leader)

@@ -5,7 +5,7 @@ services:
     container_name: yspotify-db
     image: postgres:12
     volumes:
-      - ./db:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -30,3 +30,6 @@ services:
       ConnectionStrings__DefaultConnection: "Server=db; Database=postgres; User Id=postgres; Password=postgres;"
     ports:
       - "5000:5000"
+
+volumes:
+  pgdata: { }

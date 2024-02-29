@@ -136,7 +136,7 @@
           {
             "name": "groupName",
             "in": "path",
-            "description": "",
+            "description": "The Identifying name of the Group",
             "required": true,
             "schema": {
               "type": "string"
@@ -425,7 +425,7 @@
           }
         ],
         "responses": {
-          "200": {
+          "202": {
             "description": "The Account was Linked to Spotify"
           },
           "400": {
@@ -615,7 +615,7 @@
         "summary": "Get all users",
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "Returns all Users",
             "content": {
               "text/plain": {
                 "schema": {
@@ -642,6 +642,9 @@
                 }
               }
             }
+          },
+          "204": {
+            "description": "If there are no Users"
           }
         }
       }
@@ -656,7 +659,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The id of the user",
+            "description": "The Id of the user",
             "required": true,
             "schema": {
               "type": "integer",
@@ -666,7 +669,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Success",
+            "description": "Returns the designated User",
             "content": {
               "text/plain": {
                 "schema": {
@@ -681,6 +684,26 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the User could not be found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -696,7 +719,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The id of the user",
+            "description": "The Id of the user",
             "required": true,
             "schema": {
               "type": "integer",
@@ -931,7 +954,7 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The id of the user",
+            "description": "The Id of the user",
             "required": true,
             "schema": {
               "type": "integer",
@@ -1005,7 +1028,7 @@
       "Personality": {
         "type": "object",
         "properties": {
-          "likesDance": {
+          "likes_dance": {
             "type": "number",
             "format": "float"
           },
@@ -1013,7 +1036,7 @@
             "type": "number",
             "format": "float"
           },
-          "preferInstrumentalOverVocal": {
+          "prefer_instrumental_over_vocal": {
             "type": "boolean"
           },
           "valence": {
